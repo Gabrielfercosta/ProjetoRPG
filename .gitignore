@@ -13,6 +13,11 @@ target/
 *.iml
 *.ipr
 
+# Ignorar arquivos do banco de dados H2
+dados/
+*.db
+*.log
+
 ### Eclipse ###
 .apt_generated
 .classpath

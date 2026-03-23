@@ -5,6 +5,10 @@ void main() {
     Personagem joao = new Personagem("Joao", 100, 100, 5, 20, 20);
     Personagem goblin = new Personagem("Goblin", 50, 50, 5, 20, 20);
 
+    PersonagemDAO banco = new PersonagemDAO();
+
+    banco.salvar(joao);
+
     joao.aprenderAcao(new AtaqueFisico(10));
     joao.aprenderAcao(new Cura(10));
     goblin.aprenderAcao(new Cura(20));
@@ -15,7 +19,7 @@ void main() {
 
     int acoesGoblin = goblin.acoes.size();
 
-    while (!joao.morto() && !goblin.morto()) {System.out.print("\033[H\033[2J");
+    while (joao.morto() && goblin.morto()) {
         System.out.println("\n-------------------- Turno do Joao --------------------");
         joao.listarAcoes();
         int escolha = scan.nextInt();
