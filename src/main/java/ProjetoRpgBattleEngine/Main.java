@@ -4,12 +4,12 @@ import java.sql.SQLOutput;
 import java.util.*;
 
 void main() {
-    Personagem goblin = new Personagem("Goblin", 50, 50, 5, 0, 0);
+    Inimigo goblin = new Inimigo("Goblin", 50, 50, 5, 0, 0, 34);
     goblin.aprenderAcao(new AtaqueFisico(5));
 
     String nomeClasse;
 
-    Personagem personagem;
+    Jogador jogador;
 
     PersonagemDAO banco = new PersonagemDAO();
 
@@ -29,65 +29,59 @@ void main() {
         nomeClasse = "Mago";
     }
 
-    personagem = banco.buscarPorNome(nomeClasse);
+    jogador = banco.buscarPorNome(nomeClasse);
+    boolean criarNovo = false;
 
-    String continuar;
-
-    if(personagem != null) {
-        System.out.println("Já existe um progresso salvo, deseja carregar?  S/N");
+    if (jogador != null) {
+        System.out.println("Já existe um progresso salvo, deseja carregar? S/N");
         scan.nextLine();
-        continuar = scan.nextLine();
+        String continuar = scan.nextLine();
+
         if (continuar.equals("S")) {
-            if (nomeClasse.equals("Guerreiro")) {
-                personagem.aprenderAcao(new AtaqueFisico(5));
+            if (nomeClasse.equals("Guerreiro")){
+                jogador.aprenderAcao(new AtaqueFisico(5));
             }
-            if (nomeClasse.equals("Mago")) {
-                personagem.aprenderAcao(new Cura(5));
+            if (nomeClasse.equals("Mago")){
+                jogador.aprenderAcao(new Magia("Bola de Fogo", 20));
             }
         } else {
-            switch (classeEscolhida) {
-                case 1 -> {
-                    personagem = new Personagem("Guerreiro", 200, 200, 20, 0, 0);
-                    personagem.aprenderAcao(new AtaqueFisico(5));
-                }
-                case 2 -> {
-                    personagem = new Personagem("Mago", 70, 70, 5, 50, 50);
-                    personagem.aprenderAcao(new Cura(5));
-                }
-                default -> personagem = new Personagem("Teste", 1, 1, 1, 1, 1);
-            }
-            banco.salvar(personagem);
+            criarNovo = true;
         }
-    }else if(personagem == null){
+    } else {
+        criarNovo = true;
+    }
+
+    if (criarNovo) {
         switch (classeEscolhida) {
             case 1 -> {
-                personagem = new Personagem("Guerreiro", 200, 200, 20, 0, 0);
-                personagem.aprenderAcao(new AtaqueFisico(5));
+                jogador = new Jogador("Guerreiro", 200, 200, 20, 0, 0, 1, 0);
+                jogador.aprenderAcao(new AtaqueFisico(5));
             }
             case 2 -> {
-                personagem = new Personagem("Mago", 70, 70, 5, 50, 50);
-                personagem.aprenderAcao(new Cura(5));
+                jogador = new Jogador("Mago", 70, 70, 5, 50, 50, 1, 0);
+                jogador.aprenderAcao(new Magia("Bola de Fogo", 20));
             }
-            default -> personagem = new Personagem("Teste", 1, 1, 1, 1, 1);
+            default -> jogador = new Jogador("Teste", 1, 1, 1, 1, 1, 1, 0);
         }
-        banco.salvar(personagem);
+        banco.deletarPersonagem(nomeClasse);
+        banco.salvar(jogador);
     }
 
 
 
 
-    while (!personagem.morto() && !goblin.morto()) {
+    while (!jogador.morto() && !goblin.morto()) {
         System.out.println("\n-------------------- Seu Turno --------------------");
-        personagem.listarAcoes();
+        jogador.listarAcoes();
         int escolha = scan.nextInt();
         System.out.println("");
-        while(escolha < 0 || escolha >= personagem.acoes.size())
+        while(escolha < 0 || escolha >= jogador.acoes.size())
         {
             System.out.println("Número Inválido, digite um número que existe no índice: ");
-            personagem.listarAcoes();
+            jogador.listarAcoes();
             escolha = scan.nextInt();
         }
-        personagem.usarAcao(escolha, goblin);
+        jogador.usarAcao(escolha, goblin);
 
         if (goblin.morto()) {
             System.out.println("O Goblin foi derrotado!");
@@ -98,15 +92,41 @@ void main() {
 
         System.out.println("\n-------------------- Turno do Goblin --------------------");
         int goblinAcao = rand.nextInt(acoesGoblin);
-        goblin.usarAcao(goblinAcao, personagem);
+        goblin.usarAcao(goblinAcao, jogador);
     }
 
     System.out.println("Fim da Batalha");
-    banco.salvarProgresso(personagem);
+    if (jogador.morto()) {
+        System.out.println("Personagem morto, save apagado");
+        banco.deletarPersonagem(jogador.getNome());
+    }else{
+        System.out.println("Progresso salvo");
+        jogador.ganharXp(goblin.getXpEntregue());
+        banco.salvarProgresso(jogador);
+        exibirEstatisticas(jogador, goblin);
+    }
 }
 
 public static void pausar(Scanner scan) {
     System.out.println("\n[ Pressione ENTER para continuar... ]");
     scan.nextLine();
     scan.nextLine();
+}
+
+public static void exibirEstatisticas(Jogador j, Inimigo inimigo) {
+    System.out.println("\n==================================================");
+    System.out.println("             RESUMO DA AVENTURA                     ");
+    System.out.println("==================================================");
+    System.out.println(" Herói: " + j.getNome());
+    System.out.println(" Nível Atual: " + j.getLevel());
+    System.out.println(" XP Atual: " + j.getXpAtual() + " / 100");
+
+    System.out.print(" Vida Final: [" + j.getVidaAtual() + "/" + j.getVidaMaxima() + "] ");
+
+    System.out.println("\n--------------------------------------------------");
+
+    System.out.println(" Resultado: VITÓRIA sobre o " + inimigo.getNome());
+    System.out.println(" Recompensa: +" + inimigo.getXpEntregue() + " XP obtidos.");
+
+    System.out.println("==================================================\n");
 }

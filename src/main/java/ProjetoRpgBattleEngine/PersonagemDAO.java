@@ -3,28 +3,28 @@ package ProjetoRpgBattleEngine;
 import java.sql.*;
 
 public class PersonagemDAO{
-    public void salvar(Personagem p) {
-        String sql = "INSERT INTO personagens (nome, vida_atual, vida_maxima, poder, mana_atual, mana_maxima) VALUES (?, ?, ?, ?, ?, ?)";
+    public void salvar(Jogador j) {
+        String sql = "INSERT INTO personagens (nome, vida_atual, vida_maxima, poder, mana_atual, mana_maxima, level, xp_atual) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, p.getNome());
-            pstmt.setInt(2, p.getVidaAtual());
-            pstmt.setInt(3, p.getVidaMaxima());
-            pstmt.setInt(4, p.getPoder());
-            pstmt.setInt(5, p.getManaAtual());
-            pstmt.setInt(6, p.getManaMaxima());
+            pstmt.setString(1, j.getNome());
+            pstmt.setInt(2, j.getVidaAtual());
+            pstmt.setInt(3, j.getVidaMaxima());
+            pstmt.setInt(4, j.getPoder());
+            pstmt.setInt(5, j.getManaAtual());
+            pstmt.setInt(6, j.getManaMaxima());
+            pstmt.setInt(7, j.getLevel());
+            pstmt.setInt(8, j.getXpAtual());
 
             pstmt.executeUpdate();
-            System.out.println("Personagem " + p.getNome() + " salvo");
-
         } catch (SQLException e) {
             System.out.println("Erro: " + e.getMessage());
         }
     }
 
-    public Personagem buscarPorNome(String nomeBusca) {
+    public Jogador buscarPorNome(String nomeBusca) {
         String sql = "SELECT * FROM personagens WHERE nome = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
@@ -34,13 +34,15 @@ public class PersonagemDAO{
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                return new Personagem(
+                return new Jogador(
                         rs.getString("nome"),
                         rs.getInt("vida_atual"),
                         rs.getInt("vida_maxima"),
                         rs.getInt("poder"),
                         rs.getInt("mana_atual"),
-                        rs.getInt("mana_maxima")
+                        rs.getInt("mana_maxima"),
+                        rs.getInt("level"),
+                        rs.getInt("xp_atual")
                 );
             }
         } catch (SQLException e) {
@@ -49,15 +51,17 @@ public class PersonagemDAO{
         return null;
     }
 
-    public void salvarProgresso(Personagem p) {
-        String sql = "UPDATE personagens SET vida_atual = ?, mana_atual = ? WHERE nome = ?";
+    public void salvarProgresso(Jogador j) {
+        String sql = "UPDATE personagens SET vida_atual = ?, mana_atual = ?, level = ?, xp_atual = ? WHERE nome = ?";
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, p.getVidaAtual());
-            pstmt.setInt(2, p.getManaAtual());
-            pstmt.setString(3, p.getNome());
+            pstmt.setInt(1, j.getVidaAtual());
+            pstmt.setInt(2, j.getManaAtual());
+            pstmt.setInt(3, j.getLevel());
+            pstmt.setInt(4, j.getXpAtual());
+            pstmt.setString(5, j.getNome());
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -73,7 +77,6 @@ public class PersonagemDAO{
 
             pstmt.setString(1, nome);
             pstmt.executeUpdate();
-            System.out.println("Personagem " + nome + " apagado");
 
         } catch (SQLException e) {
             System.err.println("Erro ao deletar: " + e.getMessage());

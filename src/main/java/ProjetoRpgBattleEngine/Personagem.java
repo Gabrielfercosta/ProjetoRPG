@@ -50,15 +50,9 @@ public class Personagem {
 
     public void usarAcao(int indice, Personagem alvo) {
         Acao acaoSelecionada = acoes.get(indice);
-        if(acaoSelecionada.getCusto() > getManaAtual()){
-            System.out.println("Você tenta usar sua magia mas não possui mana pra isso");
-        }else{
-            this.manaAtual -= acaoSelecionada.getCusto();
-            acaoSelecionada.executar(alvo, this);
-            // usa a interface executar para executar a acao selecionada indicando o alvo e indicando a si mesmo como executor utilizando o "this"
-            System.out.println("Ação: " + acaoSelecionada.getNome());
-            System.out.println(acaoSelecionada.getDescricao(this));
-        }
+        acaoSelecionada.executar(alvo, this);
+        System.out.println("Ação: " + acaoSelecionada.getNome());
+        System.out.println(acaoSelecionada.getDescricao(this));
         System.out.println("[ " + this.nome + ": " + this.vidaAtual + "/" + this.vidaMaxima + " HP  |  " + alvo.getNome() + ": " + alvo.getVidaAtual() + "/" + alvo.getVidaMaxima() + " HP ]"  );
         System.out.println("[ " + this.nome + ": " + this.manaAtual + "/" + this.manaMaxima + " Mana  |  " + alvo.getNome() + ": " + alvo.getManaAtual() + "/" + alvo.getManaMaxima() + " Mana ]"  );
         System.out.println("");
