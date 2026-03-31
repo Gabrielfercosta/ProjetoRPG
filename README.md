@@ -14,11 +14,11 @@ cd ProjetoRPG
 Arquivo de execução: `src/main/java/ProjetoRpgBattleEngine/Main.java`.
 
 ## Sistema
-Escolha entre Guerreiro e Mago
-Batalha contra um Goblin
-Save/load de progresso
-XP e level
-Persistência local com H2
+- Escolha entre Guerreiro e Mago
+- Batalha contra um Goblin
+- Save/load de progresso
+- XP e level
+- Persistência local com H2
 
 ## Observação
 O projeto usa H2 em `jdbc:h2:file:./dados/rpg;AUTO_SERVER=TRUE`.
